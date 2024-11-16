@@ -38,25 +38,26 @@ class BookmarkManager {
       }
     }
 
-    await this.clearAllBookmarks();
-    
-    // 获取书签栏和其他书签的ID
-    const bookmarkBar = '1';    // 书签栏的ID
-    const otherBookmarks = '2'; // 其他书签的ID
-    
-    // 分别处理书签栏和其他书签
-    for (const node of bookmarkData[0].children) {
-      if (node.title === 'Bookmarks Bar' || node.title === '书签栏') {
-        // 处理书签栏内容
-        for (const child of node.children || []) {
-          await createBookmarkTree(child, bookmarkBar);
-        }
-      } else if (node.title === 'Other Bookmarks' || node.title === '其他书签') {
-        // 处理其他书签内容
-        for (const child of node.children || []) {
-          await createBookmarkTree(child, otherBookmarks);
+    try {
+      await this.clearAllBookmarks();
+      
+      const bookmarkBar = '1';    // 书签栏的ID
+      const otherBookmarks = '2'; // 其他书签的ID
+      
+      for (const node of bookmarkData[0].children) {
+        if (node.title === 'Bookmarks Bar' || node.title === '书签栏') {
+          for (const child of node.children || []) {
+            await createBookmarkTree(child, bookmarkBar);
+          }
+        } else if (node.title === 'Other Bookmarks' || node.title === '其他书签') {
+          for (const child of node.children || []) {
+            await createBookmarkTree(child, otherBookmarks);
+          }
         }
       }
+    } catch (error) {
+      console.error('导入书签失败:', error);
+      throw new Error('导入书签失败: ' + error.message);
     }
   }
 }

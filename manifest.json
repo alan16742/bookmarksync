@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "书签同步",
+  "name": "WebDAV书签同步",
   "version": "1.0",
-  "description": "使用 WebDAV 同步 Chrome 书签",
+  "description": "使用 WebDAV 同步书签",
   "permissions": [
     "bookmarks",
     "storage",

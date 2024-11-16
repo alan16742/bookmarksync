@@ -6,6 +6,7 @@
 </head>
 <body>
   <div class="container">
+    <h1 class="title">WebDAV书签同步</h1>
     <div class="actions">
       <button id="uploadBtn">上传书签</button>
       <button id="downloadBtn">下载书签</button>
@@ -15,16 +16,16 @@
     <div class="settings">
       <h3>WebDAV 设置</h3>
       <div class="form-group">
-        <label>服务器地址:</label>
-        <input type="text" id="serverUrl">
+        <!-- <label>服务器地址:</label> -->
+        <input type="text" id="serverUrl" placeholder="例如: https://dav.example.com">
       </div>
       <div class="form-group">
-        <label>用户名:</label>
-        <input type="text" id="username">
+        <!-- <label>用户名:</label> -->
+        <input type="text" id="username" placeholder="请输入WebDAV用户名">
       </div>
       <div class="form-group">
-        <label>密码:</label>
-        <input type="password" id="password">
+        <!-- <label>密码:</label> -->
+        <input type="password" id="password" placeholder="请输入WebDAV密码">
       </div>
       <button id="testConnection">测试连接</button>
       <button id="saveSettings">保存设置</button>

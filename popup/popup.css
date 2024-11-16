@@ -1,61 +1,91 @@
+/* 主容器样式 */
 .container {
-  width: 300px;
-  padding: 15px;
+  width: 260px;  /* 弹出窗口固定宽度 */
+  padding: 10px; /* 内边距，使内容不贴边 */
 }
 
+/* 操作按钮区域样式 */
 .actions {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-bottom: 20px;
+  display: flex;          /* 使用弹性布局 */
+  flex-direction: column; /* 按钮垂直排列 */
+  gap: 10px;             /* 按钮之间的间距 */
+  margin-bottom: 5px;    /* 与下方设置区域的间距 */
 }
 
+/* WebDAV 设置区域样式 */
 .settings {
-  border-top: 1px solid #ccc;
-  padding-top: 15px;
+  border-top: 2px solid #a1a1a1; /* 顶部分隔线 */
+  padding-top: 5px;          /* 顶部内边距 */
 }
 
+/* 表单组样式 */
 .form-group {
-  margin-bottom: 10px;
+  margin-bottom: 10px; /* 表单组之间的垂直间距 */
 }
 
+/* 表单标签样式 */
 .form-group label {
-  display: block;
-  margin-bottom: 5px;
+  display: block;       /* 标签独占一行 */
+  margin-bottom: 5px;   /* 与输入框的间距 */
 }
 
+/* 输入框样式 */
 .form-group input {
-  width: 100%;
-  padding: 5px;
+  width: 95%;    /* 宽度占满容器 */
+  padding: 5px;   /* 输入框内边距 */
+  border-radius: 4px;        /* 圆角边框 */
 }
 
+/* 按钮通用样式 */
 button {
-  width: 100%;
-  padding: 8px;
-  margin: 5px 0;
-  background-color: #4285f4;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
+  width: 100%;                /* 宽度占满容器 */
+  padding: 8px;              /* 按钮内边距 */
+  margin: 5px 0;             /* 按钮垂直间距 */
+  background-color: #4285f4; /* Google 蓝色背景 */
+  color: white;              /* 白色文字 */
+  border: none;              /* 移除边框 */
+  border-radius: 4px;        /* 圆角边框 */
+  cursor: pointer;           /* 鼠标悬停时显示手型光标 */
 }
 
+/* 按钮悬停效果 */
 button:hover {
-  background-color: #3367d6;
+  background-color: #3367d6; /* 更深的蓝色 */
 }
 
+/* 状态消息区域样式 */
 .status {
-  margin-top: 10px;
-  padding: 10px;
-  border-radius: 4px;
+  margin-top: 5px;    /* 顶部间距 */
+  padding: 10px;       /* 内边距 */
+  border-radius: 4px;  /* 圆角边框 */
 }
 
+/* 成功状态样式 */
 .status.success {
-  background-color: #d4edda;
-  color: #155724;
+  background-color: #d4edda; /* 浅绿色背景 */
+  color: #155724;           /* 深绿色文字 */
 }
 
+/* 错误状态样式 */
 .status.error {
-  background-color: #f8d7da;
-  color: #721c24;
-} 
+  background-color: #f8d7da; /* 浅红色背景 */
+  color: #721c24;           /* 深红色文字 */
+}
+
+/* 标题样式 */
+.title {
+  font-size: 16px;          /* 标题字体大小 */
+  font-weight: bold;        /* 加粗字体 */
+  text-align: center;       /* 居中对齐 */
+  margin: 0 0 8px 0;       /* 底部外边距 */
+  color: #3367D6;           /* 深灰色文字 */
+}
+
+/* h3样式 */
+h3 {
+  font-size: 14px;          /* 标题字体大小 */
+  font-weight: bold;        /* 加粗字体 */
+  text-align: center;       /* 居中对齐 */
+  margin: 0 0 8px 0;       /* 底部外边距 */
+  color: #3367D6;           /* 深灰色文字 */
+}
