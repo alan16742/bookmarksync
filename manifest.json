@@ -1,7 +1,6 @@
 {
   "manifest_version": 3,
   "name": "WebDAV书签同步",
-  "version": "1.0",
   "description": "使用 WebDAV 同步书签",
   "permissions": [
     "bookmarks",
@@ -28,4 +27,4 @@
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
   }
-} 
+}
