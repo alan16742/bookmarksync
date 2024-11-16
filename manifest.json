@@ -2,6 +2,8 @@
   "manifest_version": 3,
   "name": "WebDAV书签同步",
   "description": "使用 WebDAV 同步书签",
+  "short_name": "WebDAV书签同步",
+  "version": "1.0.0",
   "permissions": [
     "bookmarks",
     "storage",
