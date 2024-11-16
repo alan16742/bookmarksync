@@ -1,0 +1,16 @@
+bookmark-sync/
+├── manifest.json
+├── popup/
+│   ├── popup.html
+│   ├── popup.css
+│   └── popup.js
+├── js/
+│   ├── background.js
+│   ├── webdav.js
+│   ├── bookmark.js
+│   ├── storage.js
+│   └── utils.js
+└── icons/
+    ├── icon16.png
+    ├── icon48.png
+    └── icon128.png 
