@@ -89,3 +89,36 @@ h3 {
   margin: 0 0 8px 0;       /* 底部外边距 */
   color: #3367D6;           /* 深灰色文字 */
 }
+
+/* 设置区域头部样式 */
+.settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  padding: 5px 0;
+  border-top: 2px solid #a1a1a1;
+}
+
+/* 箭头样式 */
+.arrow {
+  color: #3367D6;
+  transition: transform 0.3s ease;
+  /* 居中 */
+  margin: 0 auto;
+}
+
+/* 箭头旋转效果 */
+.arrow.up {
+  transform: rotate(180deg);
+}
+
+/* 隐藏内容 */
+.hidden {
+  display: none;
+}
+
+/* 设置内容区域 */
+.settings-content {
+  padding-top: 5px;
+}

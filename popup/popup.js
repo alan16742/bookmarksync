@@ -85,6 +85,16 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     }
   });
+
+  // 添加设置区域展开/收起功能
+  const settingsHeader = document.querySelector('.settings-header');
+  const settingsContent = document.querySelector('.settings-content');
+  const arrow = document.querySelector('.arrow');
+  
+  settingsHeader.addEventListener('click', () => {
+    settingsContent.classList.toggle('hidden');
+    arrow.classList.toggle('up');
+  });
 });
 
 function showStatus(message, success) {

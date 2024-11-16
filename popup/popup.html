@@ -13,18 +13,18 @@
       <button id="clearBtn">清空本地书签</button>
     </div>
     
-    <div class="settings">
+    <div class="settings-header">
+      <span class="arrow">▼</span>
+    </div>
+    <div class="settings-content hidden">
       <h3>WebDAV 设置</h3>
       <div class="form-group">
-        <!-- <label>服务器地址:</label> -->
         <input type="text" id="serverUrl" placeholder="例如: https://dav.example.com">
       </div>
       <div class="form-group">
-        <!-- <label>用户名:</label> -->
         <input type="text" id="username" placeholder="请输入WebDAV用户名">
       </div>
       <div class="form-group">
-        <!-- <label>密码:</label> -->
         <input type="password" id="password" placeholder="请输入WebDAV密码">
       </div>
       <button id="testConnection">测试连接</button>
