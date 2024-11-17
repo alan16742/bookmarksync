@@ -1,9 +1,10 @@
 {
   "name": "webdav-bookmark-sync",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Chrome extension for syncing bookmarks via WebDAV",
   "scripts": {
     "build": "node build.js",
+    "build:debug": "DEBUG=true node build.js",
     "generate-key": "node -e \"require('./build.js').generateKey()\""
   },
   "devDependencies": {

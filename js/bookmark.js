@@ -1,3 +1,5 @@
+import I18n from './i18n.js';
+
 class BookmarkManager {
   static async getAllBookmarks() {
     return new Promise((resolve) => {
@@ -45,21 +47,20 @@ class BookmarkManager {
     const getRootFolderId = (folderTitle, browserType) => {
       if (browserType === BROWSER_TYPE.FIREFOX) {
         switch (folderTitle) {
-          case 'Menu':
-          case '书签菜单': return ROOT_FOLDERS.FIREFOX.MENU;
-          case 'Mobile':
-          case '移动书签': return ROOT_FOLDERS.FIREFOX.MOBILE;
-          case 'Toolbar':
-          case 'Bookmarks Toolbar':
-          case '书签工具栏': return ROOT_FOLDERS.FIREFOX.TOOLBAR;
+          case I18n.t('bookmarks.menu'):
+          case I18n.t('bookmarks.menuZh'): return ROOT_FOLDERS.FIREFOX.MENU;
+          case I18n.t('bookmarks.mobile'):
+          case I18n.t('bookmarks.mobileZh'): return ROOT_FOLDERS.FIREFOX.MOBILE;
+          case I18n.t('bookmarks.toolbar'):
+          case I18n.t('bookmarks.toolbarZh'): return ROOT_FOLDERS.FIREFOX.TOOLBAR;
           default: return ROOT_FOLDERS.FIREFOX.UNFILED;
         }
       } else {
         switch (folderTitle) {
-          case 'Bookmarks Bar':
-          case '书签栏': return ROOT_FOLDERS.CHROME.TOOLBAR;
-          case 'Mobile':
-          case '移动书签': return ROOT_FOLDERS.CHROME.MOBILE;
+          case I18n.t('bookmarks.bar'):
+          case I18n.t('bookmarks.barZh'): return ROOT_FOLDERS.CHROME.TOOLBAR;
+          case I18n.t('bookmarks.mobile'):
+          case I18n.t('bookmarks.mobileZh'): return ROOT_FOLDERS.CHROME.MOBILE;
           default: return ROOT_FOLDERS.CHROME.OTHER;
         }
       }
@@ -94,8 +95,7 @@ class BookmarkManager {
           }
         }
       } catch (error) {
-        console.error('创建书签失败:', error, node);
-        // 继续处理其他书签，而不是中断整个过程
+        console.error(I18n.t('errors.createBookmarkFailed'), error, node);
       }
     }
 
@@ -122,8 +122,8 @@ class BookmarkManager {
       // 重新启用书签变更监听
       port.disconnect();
     } catch (error) {
-      console.error('导入书签失败:', error);
-      throw new Error('导入书签失败: ' + error.message);
+      console.error(I18n.t('errors.importFailed'), error);
+      throw new Error(I18n.t('errors.importFailed') + ': ' + error.message);
     }
   }
 }

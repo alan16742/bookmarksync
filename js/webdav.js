@@ -1,3 +1,5 @@
+import I18n from './i18n.js';
+
 class WebDAVError extends Error {
   constructor(message, type, statusCode, details = {}) {
     super(message);
@@ -19,27 +21,21 @@ class WebDAVClient {
       const response = await fetch(this.serverUrl, {
         method: 'PROPFIND',
         headers: {
-          'Authorization': 'Basic ' + btoa(`${this.username}:${this.password}`),
+          'Authorization': 'Basic ' + btoa(this.username + ':' + this.password),
           'Depth': '0'
         }
       });
 
-      // 处理不同的状态码
-      if (response.status === 207) {
-        return true;
-      } else if (response.status === 401) {
-        throw new WebDAVError('认证失败，请检查用户名和密码', 'AUTH_ERROR', 401);
-      } else {
-        throw new WebDAVError('服务器返回意外状态码：' + response.status, 'SERVER_ERROR', response.status);
+      if (response.status === 401) {
+        throw new WebDAVError(I18n.t('errors.authFailed'), 'auth', 401);
       }
+
+      return response.ok;
     } catch (error) {
       if (error instanceof WebDAVError) {
         throw error;
       }
-      if (error.name === 'TypeError') {
-        throw new WebDAVError('网络连接失败，请检查服务器地址', 'NETWORK_ERROR');
-      }
-      throw new WebDAVError('连接测试失败：' + error.message, 'UNKNOWN_ERROR');
+      throw new WebDAVError(I18n.t('errors.networkError'), 'network', 0);
     }
   }
 
@@ -55,10 +51,10 @@ class WebDAVClient {
       });
       
       if (!response.ok) {
-        throw new Error('上传失败');
+        throw new Error(I18n.t('errors.uploadFailed'));
       }
     } catch (error) {
-      throw new Error('上传失败：' + error.message);
+      throw new Error(I18n.t('errors.uploadFailed') + ': ' + error.message);
     }
   }
 
@@ -67,17 +63,17 @@ class WebDAVClient {
       const response = await fetch(this.serverUrl + '/bookmarks.json', {
         method: 'GET',
         headers: {
-          'Authorization': 'Basic ' + btoa(`${this.username}:${this.password}`)
+          'Authorization': 'Basic ' + btoa(this.username + ':' + this.password)
         }
       });
       
       if (!response.ok) {
-        throw new Error('下载失败');
+        throw new Error(I18n.t('errors.downloadFailed'));
       }
 
       return await response.json();
     } catch (error) {
-      throw new Error('下载失败：' + error.message);
+      throw new Error(I18n.t('errors.downloadFailed') + ': ' + error.message);
     }
   }
 }

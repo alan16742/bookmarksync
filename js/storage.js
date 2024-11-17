@@ -1,3 +1,4 @@
+import I18n from './i18n.js';
 class SecureStorage {
   // 生成加密密钥
   static async generateKey() {
@@ -5,7 +6,7 @@ class SecureStorage {
     const encoder = new TextEncoder();
     const keyMaterial = await crypto.subtle.importKey(
       'raw',
-      encoder.encode('WebDAV-Bookmark-Sync'), // 使用固定的密钥材料
+      encoder.encode('WebDAV-Bookmark-Sync'),
       { name: 'PBKDF2' },
       false,
       ['deriveBits', 'deriveKey']
@@ -53,8 +54,8 @@ class SecureStorage {
       // 转换为Base64以便存储
       return btoa(String.fromCharCode.apply(null, combined));
     } catch (error) {
-      console.error('加密失败:', error);
-      throw new Error('加密失败');
+      console.error(I18n.t('errors.encryptFailed'), error);
+      throw new Error(I18n.t('errors.encryptFailed'));
     }
   }
 
@@ -106,18 +107,18 @@ class SecureStorage {
 
       return new TextDecoder().decode(decryptedData);
     } catch (error) {
-      console.error('解密失败:', error);
-      throw new Error('解密失败');
+      console.error(I18n.t('errors.decryptFailed'), error);
+      throw new Error(I18n.t('errors.decryptFailed'));
     }
   }
 
   static async saveCredentials(serverUrl, username, password) {
     if (!serverUrl || !username || !password) {
-      throw new Error('所有字段都必须填写');
+      throw new Error(I18n.t('errors.allFieldsRequired'));
     }
 
     if (!this.validatePassword(password)) {
-      throw new Error('密码长度至少需要8个字符');
+      throw new Error(I18n.t('errors.passwordLength'));
     }
 
     const encryptedPassword = await this.encrypt(password);
@@ -131,13 +132,9 @@ class SecureStorage {
   }
 
   static validatePassword(password) {
-    // 简单的密码验证，只检查长度
-    const minLength = 8;
-    
-    if (password.length < minLength) {
-      throw new Error('密码长度至少需要8个字符');
+    if (password.length < 8) {
+      throw new Error(I18n.t('errors.passwordLength'));
     }
-
     return true;
   }
 
@@ -166,28 +163,25 @@ class SecureStorage {
     return data.bookmarksChanged === true;
   }
 
-  // 建议添加版本控制机制
   static VERSION = '1.0';
 
-  // 建议添加数据迁移机制
   static async migrateIfNeeded() {
     const version = await chrome.storage.local.get(['version']);
     if (version !== this.VERSION) {
+      console.log(I18n.t('status.migrationNeeded'));
       // 执行迁移
     }
   }
 
-  // 建议添加数据验证
   static validateServerUrl(url) {
     try {
       new URL(url);
       return true;
     } catch {
-      throw new Error('无效的服务器地址');
+      throw new Error(I18n.t('errors.invalidServer'));
     }
   }
 
-  // 使用随机生成的密钥材料
   static async generateKeyMaterial() {
     return crypto.getRandomValues(new Uint8Array(32));
   }

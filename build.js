@@ -68,7 +68,8 @@ async function build() {
       'manifest.json',
       'popup/**/*',
       'js/**/*',
-      'icons/**/*'
+      'icons/**/*',
+      '_locales/**/*'
     ];
 
     // 复制所需文件
@@ -82,7 +83,10 @@ async function build() {
           '**/dist/**',
           '**/*.crx',
           '**/build.js',
-          '**/package*.json'
+          '**/package*.json',
+          '**/*.md',
+          '**/test/**',
+          '**/.DS_Store'
         ],
         nodir: true  // 只匹配文件，不匹配目录
       });
@@ -108,15 +112,15 @@ async function build() {
     // 打包 ZIP
     const zipPath = path.join(distDir, `bookmark-sync-v${version}.zip`);
     await buildZip(tempDir, zipPath);
+    debug('创建ZIP文件:', zipPath);
 
     // 清理临时目录
     fs.rmSync(tempDir, { recursive: true });
     debug('清理临时目录');
 
-    console.log('打包完成！输出文件:', zipPath);
-
-  } catch (err) {
-    console.error('打包失败:', err);
+    console.log(`打包完成: ${zipPath}`);
+  } catch (error) {
+    console.error('打包失败:', error);
     process.exit(1);
   }
 }

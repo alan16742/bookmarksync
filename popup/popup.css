@@ -188,3 +188,18 @@ button.loading::after {
     transform: rotate(360deg);
   }
 }
+
+/* 添加到现有CSS文件末尾 */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-md);
+}
+
+#language {
+  padding: 4px;
+  border: 1px solid var(--border-gray);
+  border-radius: 4px;
+  font-size: 12px;
+}

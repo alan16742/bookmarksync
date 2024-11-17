@@ -1,12 +1,40 @@
 import WebDAVClient from '../js/webdav.js';
 import BookmarkManager from '../js/bookmark.js';
 import SecureStorage from '../js/storage.js';
+import I18n from '../js/i18n.js';
+
+// 更新页面上的所有翻译
+function updateTranslations() {
+  // 更新文本内容
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    el.textContent = I18n.t(el.getAttribute('data-i18n'));
+  });
+  
+  // 更新占位符
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    el.placeholder = I18n.t(el.getAttribute('data-i18n-placeholder'));
+  });
+}
 
 document.addEventListener('DOMContentLoaded', async () => {
+  // 初始化 I18n
+  await I18n.initialize();
+  
+  // 初始化语言选择器
+  const languageSelect = document.getElementById('language');
+  languageSelect.value = I18n.currentLocale;
+  updateTranslations();
+  
+  // 监听语言切换
+  languageSelect.addEventListener('change', async (e) => {
+    await I18n.setLocale(e.target.value);
+    updateTranslations();
+  });
+
   // 检查是否有未同步的变更
   const hasChanges = await SecureStorage.hasBookmarksChanged();
   if (hasChanges) {
-    showStatus('书签有未同步的更改', false);
+    showStatus(I18n.t('status.changes'), false);
   }
   
   const credentials = await SecureStorage.getCredentials();
@@ -25,18 +53,18 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       // 验证必填字段
       if (!serverUrl) {
-        throw new Error('请输入服务器地址');
+        throw new Error(I18n.t('errors.serverRequired'));
       }
       if (!username) {
-        throw new Error('请输入用户名');
+        throw new Error(I18n.t('errors.usernameRequired'));
       }
       if (!password) {
-        throw new Error('请输入密码');
+        throw new Error(I18n.t('errors.passwordRequired'));
       }
 
       const client = new WebDAVClient(serverUrl, username, password);
       const status = await client.testConnection();
-      showStatus(status ? '连接成功' : '连接失败', status);
+      showStatus(status ? I18n.t('status.connectionSuccess') : I18n.t('status.connectionFailed'), status);
     } catch (error) {
       showStatus(error.message, false);
     }
@@ -50,9 +78,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('username').value,
         document.getElementById('password').value
       );
-      showStatus('设置已保存', true);
+      showStatus(I18n.t('status.settingsSaved'), true);
     } catch (error) {
-      showStatus('保存设置失败：' + error.message, false);
+      showStatus(I18n.t('errors.saveFailed') + ': ' + error.message, false);
     }
   });
 
@@ -67,7 +95,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const client = await getWebDAVClient();
       await client.uploadBookmarks(bookmarks);
       await SecureStorage.clearBookmarksChangedFlag();
-      showStatus('书签上传成功', true);
+      showStatus(I18n.t('status.uploadSuccess'), true);
     } catch (error) {
       showStatus(error.message, false);
     } finally {
@@ -87,7 +115,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const bookmarks = await client.downloadBookmarks();
       await BookmarkManager.importBookmarks(bookmarks);
       await SecureStorage.clearBookmarksChangedFlag();
-      showStatus('书签下载成功', true);
+      showStatus(I18n.t('status.downloadSuccess'), true);
     } catch (error) {
       showStatus(error.message, false);
     } finally {
@@ -98,12 +126,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // 清空书签
   document.getElementById('clearBtn').addEventListener('click', async () => {
-    if (confirm('确定要清空所有本地书签吗？')) {
+    if (confirm(I18n.t('status.clearConfirm'))) {
       try {
         await BookmarkManager.clearAllBookmarks();
-        showStatus('书签已清空', true);
+        showStatus(I18n.t('status.clearSuccess'), true);
       } catch (error) {
-        showStatus('清空书签失败：' + error.message, false);
+        showStatus(I18n.t('errors.clearFailed') + ': ' + error.message, false);
       }
     }
   });

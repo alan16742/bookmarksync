@@ -1,0 +1,11 @@
+{
+  "extName": {
+    "message": "WebDAV Bookmark Sync"
+  },
+  "extDescription": {
+    "message": "A simple Chrome extension for syncing bookmarks across devices via WebDAV."
+  },
+  "extShortName": {
+    "message": "Bookmark Sync"
+  }
+} 
