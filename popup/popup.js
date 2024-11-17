@@ -3,6 +3,12 @@ import BookmarkManager from '../js/bookmark.js';
 import SecureStorage from '../js/storage.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
+  // 检查是否有未同步的变更
+  const hasChanges = await SecureStorage.hasBookmarksChanged();
+  if (hasChanges) {
+    showStatus('书签有未同步的更改', false);
+  }
+  
   const credentials = await SecureStorage.getCredentials();
   
   // 填充已保存的设置
@@ -52,25 +58,41 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // 上传书签
   document.getElementById('uploadBtn').addEventListener('click', async () => {
+    const button = document.getElementById('uploadBtn');
     try {
+      button.classList.add('loading');
+      button.disabled = true;
+      
       const bookmarks = await BookmarkManager.getAllBookmarks();
       const client = await getWebDAVClient();
       await client.uploadBookmarks(bookmarks);
+      await SecureStorage.clearBookmarksChangedFlag();
       showStatus('书签上传成功', true);
     } catch (error) {
       showStatus(error.message, false);
+    } finally {
+      button.classList.remove('loading');
+      button.disabled = false;
     }
   });
 
   // 下载书签
   document.getElementById('downloadBtn').addEventListener('click', async () => {
+    const button = document.getElementById('downloadBtn');
     try {
+      button.classList.add('loading');
+      button.disabled = true;
+      
       const client = await getWebDAVClient();
       const bookmarks = await client.downloadBookmarks();
       await BookmarkManager.importBookmarks(bookmarks);
+      await SecureStorage.clearBookmarksChangedFlag();
       showStatus('书签下载成功', true);
     } catch (error) {
       showStatus(error.message, false);
+    } finally {
+      button.classList.remove('loading');
+      button.disabled = false;
     }
   });
 

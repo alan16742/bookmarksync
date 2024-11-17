@@ -1,124 +1,190 @@
-/* 主容器样式 */
+/* CSS变量定义
+ * 使用CSS变量统一管理颜色和间距，方便主题定制和维护
+ * --primary-color: Google品牌主色
+ * --primary-dark: 主色的深色版本，用于悬停状态
+ * --border-gray: 中性色，用于分隔线
+ * --success/error: 用于操作反馈的状态颜色
+ * --spacing-*: 统一的间距系统，从小到大递增
+ */
+:root {
+  --primary-color: #4285F4;  /* Google品牌蓝 */
+  --primary-dark: #3367D6;   /* 深蓝色，用于hover效果 */
+  --border-gray: #a1a1a1;    /* 中性灰色，用于分隔线 */
+  --success-bg: #d4edda;     /* 成功状态背景色 */
+  --success-text: #155724;   /* 成功状态文本色 */
+  --error-bg: #f8d7da;       /* 错误状态背景色 */
+  --error-text: #721c24;     /* 错误状态文本色 */
+  --spacing-xs: 4px;         /* 最小间距，用于细节处理 */
+  --spacing-sm: 5px;         /* 小间距，用于紧凑布局 */
+  --spacing-md: 8px;         /* 中等间距，常规使用 */
+  --spacing-lg: 10px;        /* 大间距，用于主要分隔 */
+}
+
+/* 主容器样式
+ * 固定宽度确保弹出窗口大小一致
+ * 内边距防止内容贴边
+ */
 .container {
-  width: 260px;  /* 弹出窗口固定宽度 */
-  padding: 10px; /* 内边距，使内容不贴边 */
+  width: 260px;              /* 适合弹出窗口的理想宽度 */
+  padding: var(--spacing-sm);/* 四周留出统一间距 */
 }
 
-/* 操作按钮区域样式 */
+/* 文本样式统一
+ * 标题和副标题共享基础样式
+ * 使用主题色强调重要性
+ */
+.title, h3 {
+  text-align: center;        /* 文本居中对齐 */
+  font-weight: bold;         /* 加粗突出重要性 */
+  color: var(--primary-dark);/* 使用深色提高对比度 */
+  margin: 0 0 var(--spacing-md) 0; /* 只保留底部间距 */
+}
+
+/* 主标题和副标题的尺寸区分 */
+.title {
+  font-size: 16px;          /* 主标题较大 */
+}
+
+h3 {
+  font-size: 14px;          /* 副标题稍小 */
+}
+
+/* 布局组件样式
+ * 使用flex布局实现垂直排列的按钮组
+ */
 .actions {
-  display: flex;          /* 使用弹性布局 */
-  flex-direction: column; /* 按钮垂直排列 */
-  gap: 10px;             /* 按钮之间的间距 */
-  margin-bottom: 5px;    /* 与下方设置区域的间距 */
+  display: flex;            /* 启用弹性盒子布局 */
+  flex-direction: column;   /* 垂直排列子元素 */
+  gap: var(--spacing-lg);   /* 子元素间距 */
+  margin-bottom: var(--spacing-sm); /* 与下方元素保持间距 */
 }
 
-/* WebDAV 设置区域样式 */
-.settings {
-  border-top: 2px solid #a1a1a1; /* 顶部分隔线 */
-  padding-top: 5px;          /* 顶部内边距 */
-}
-
-/* 表单组样式 */
+/* 表单相关样式
+ * 统一的表单布局和间距
+ */
 .form-group {
-  margin-bottom: 10px; /* 表单组之间的垂直间距 */
+  margin-bottom: var(--spacing-lg); /* 表单组之间的间距 */
 }
 
-/* 表单标签样式 */
 .form-group label {
-  display: block;       /* 标签独占一行 */
-  margin-bottom: 5px;   /* 与输入框的间距 */
+  display: block;           /* 标签独占一行 */
+  margin-bottom: var(--spacing-sm); /* 与输入框的间距 */
 }
 
-/* 输入框样式 */
 .form-group input {
-  width: 95%;    /* 宽度占满容器 */
-  padding: 5px;   /* 输入框内边距 */
-  border-radius: 4px;        /* 圆角边框 */
+  width: 95%;              /* 留出少许边距 */
+  padding: var(--spacing-sm); /* 输入框内边距 */
+  border-radius: var(--spacing-xs); /* 圆角效果 */
+  border: 2px solid var(--primary-color); /* 使用主题色边框 */
 }
 
-/* 按钮通用样式 */
+/* 按钮样式
+ * 统一的按钮外观和交互效果
+ * 使用主题色突出可点击性
+ */
 button {
-  width: 100%;                /* 宽度占满容器 */
-  padding: 8px;              /* 按钮内边距 */
-  margin: 5px 0;             /* 按钮垂直间距 */
-  background-color: #4285f4; /* Google 蓝色背景 */
-  color: white;              /* 白色文字 */
-  border: none;              /* 移除边框 */
-  border-radius: 4px;        /* 圆角边框 */
-  cursor: pointer;           /* 鼠标悬停时显示手型光标 */
+  width: 80%;              /* 按钮宽度，两侧留白 */
+  padding: var(--spacing-md); /* 按钮内边距 */
+  background-color: var(--primary-color); /* 主题色背景 */
+  color: white;            /* 白色文字确保可读性 */
+  border: none;            /* 移除边框 */
+  border-radius: var(--spacing-xs); /* 圆角效果 */
+  cursor: pointer;         /* 鼠标悬停显示手型 */
+  margin: 0 auto;         /* 水平居中 */
+  transition: background-color 0.2s ease; /* 颜色渐变动画 */
 }
 
 /* 按钮悬停效果 */
 button:hover {
-  background-color: #3367d6; /* 更深的蓝色 */
+  background-color: var(--primary-dark); /* 加深背景色 */
 }
 
-/* 状态消息区域样式 */
+/* 状态提示样式
+ * 用于显示操作结果的反馈信息
+ */
 .status {
-  margin-top: 5px;    /* 顶部间距 */
-  padding: 10px;       /* 内边距 */
-  border-radius: 4px;  /* 圆角边框 */
+  margin-top: var(--spacing-lg); /* 与上方元素间距 */
+  margin-bottom: 1px;
+  padding: var(--spacing-md);    /* 内容边距 */
+  border-radius: var(--spacing-xs); /* 圆角效果 */
 }
 
 /* 成功状态样式 */
 .status.success {
-  background-color: #d4edda; /* 浅绿色背景 */
-  color: #155724;           /* 深绿色文字 */
+  background-color: var(--success-bg); /* 成功状态背景 */
+  color: var(--success-text);         /* 成功状态文字 */
 }
 
 /* 错误状态样式 */
 .status.error {
-  background-color: #f8d7da; /* 浅红色背景 */
-  color: #721c24;           /* 深红色文字 */
+  background-color: var(--error-bg);   /* 错误状态背景 */
+  color: var(--error-text);           /* 错误状态文字 */
 }
 
-/* 标题样式 */
-.title {
-  font-size: 16px;          /* 标题字体大小 */
-  font-weight: bold;        /* 加粗字体 */
-  text-align: center;       /* 居中对齐 */
-  margin: 0 0 8px 0;       /* 底部外边距 */
-  color: #3367D6;           /* 深灰色文字 */
-}
-
-/* h3样式 */
-h3 {
-  font-size: 14px;          /* 标题字体大小 */
-  font-weight: bold;        /* 加粗字体 */
-  text-align: center;       /* 居中对齐 */
-  margin: 0 0 8px 0;       /* 底部外边距 */
-  color: #3367D6;           /* 深灰色文字 */
+/* 设置区域样式
+ * 使用边框分隔不同功能区域
+ */
+.settings-header, .settings {
+  padding-top: var(--spacing-sm);          /* 顶部间距 */
 }
 
 /* 设置区域头部样式 */
 .settings-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  cursor: pointer;
-  padding: 5px 0;
-  border-top: 2px solid #a1a1a1;
+  display: flex;                    /* 弹性布局 */
+  justify-content: space-between;   /* 两端对齐 */
+  align-items: center;              /* 垂直居中 */
+  cursor: pointer;                  /* 指示可点击 */
 }
 
-/* 箭头样式 */
+/* 箭头样式
+ * 使用CSS动画实现展开/收起效果
+ */
 .arrow {
-  color: #3367D6;
-  transition: transform 0.3s ease;
-  /* 居中 */
-  margin: 0 auto;
+  color: var(--primary-color);     /* 使用主题色 */
+  transition: transform 0.3s ease;  /* 旋转动画 */
+  margin: 0 auto;                  /* 水平居中 */
 }
 
-/* 箭头旋转效果 */
+/* 箭头向上状态 */
 .arrow.up {
-  transform: rotate(180deg);
+  transform: rotate(180deg);        /* 旋转180度 */
 }
 
-/* 隐藏内容 */
+/* 隐藏元素样式 */
 .hidden {
-  display: none;
+  display: none;                    /* 完全隐藏元素 */
 }
 
-/* 设置内容区域 */
+/* 设置内容区域样式 */
 .settings-content {
-  padding-top: 5px;
+  padding-top: var(--spacing-sm);   /* 顶部间距 */
+}
+
+/* 添加加载状态样式 */
+button.loading {
+  position: relative;
+  color: transparent;  /* 隐藏按钮文字 */
+}
+
+button.loading::after {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  top: 50%;
+  left: 50%;
+  margin: -8px 0 0 -8px;
+  border: 2px solid white;
+  border-radius: 50%;
+  border-right-color: transparent;
+  animation: button-loading-spinner 0.75s linear infinite;
+}
+
+@keyframes button-loading-spinner {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }

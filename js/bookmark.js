@@ -39,11 +39,15 @@ class BookmarkManager {
     }
 
     try {
+      // 在导入开始前临时禁用书签变更监听
+      const port = chrome.runtime.connect({ name: 'disable-bookmark-listener' });
+      // 清空书签
       await this.clearAllBookmarks();
       
       const bookmarkBar = '1';    // 书签栏的ID
       const otherBookmarks = '2'; // 其他书签的ID
-      
+
+      // 导入书签
       for (const node of bookmarkData[0].children) {
         if (node.title === 'Bookmarks Bar' || node.title === '书签栏') {
           for (const child of node.children || []) {
@@ -55,6 +59,9 @@ class BookmarkManager {
           }
         }
       }
+      
+      // 重新启用书签变更监听
+      port.disconnect();
     } catch (error) {
       console.error('导入书签失败:', error);
       throw new Error('导入书签失败: ' + error.message);
