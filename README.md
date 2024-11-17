@@ -8,14 +8,16 @@
   - 支持书签的上传与下载
   - 支持书签文件夹结构的保持
   - 智能处理书签栏和其他书签分类
+  - 支持 Firefox 和 Chrome 书签格式转换
 - 🔄 WebDAV 集成
   - 支持标准 WebDAV 协议
   - 提供连接测试功能
   - 支持自定义服务器地址
+  - 详细的错误提示和状态反馈
 - 🔒 安全性
-  - 安全存储 WebDAV 认证信息
-  - 使用 Chrome 同步存储保护敏感数据
-  - 密码简单加密存储
+  - 使用 AES-GCM 加密存储敏感数据
+  - 使用 Chrome 同步存储保护配置
+  - 支持密码长度和格式验证
 - 🔔 智能提醒
   - 书签变更实时提醒
   - 使用徽章显示未同步状态
@@ -50,7 +52,7 @@
 3. 在设置区域填写 WebDAV 服务器信息：
    - 服务器地址（例如：https://dav.example.com）
    - 用户名
-   - 密码
+   - 密码（至少8个字符）
 4. 点击"测试连接"确保配置正确
 5. 点击"保存设置"保存 WebDAV 配置
 6. 使用"上传书签"或"下载书签"进行同步
@@ -63,6 +65,8 @@
 - 书签变更会在扩展图标上显示红色感叹号提醒
 - 同步操作会暂时禁用变更检测，避免重复提醒
 - 语言设置会被保存，重启浏览器后仍然保持
+- 密码必须至少包含8个字符
+- 支持在 Firefox 和 Chrome 之间同步书签
 
 ## 开发相关
 
@@ -97,14 +101,16 @@
 
 ## 许可证
 
-本项目采用 MIT 许可证。
+本项目采用 Apache License 2.0 许可证。详细信息请查看 [LICENSE](LICENSE) 文件。
 
 ## 技术栈
 
 - ![Chrome](https://img.shields.io/badge/Chrome%20Extension-v3-blue)
+- ![Firefox](https://img.shields.io/badge/Firefox%20Add--on-Compatible-orange)
 - ![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-yellow)
 - ![WebDAV](https://img.shields.io/badge/WebDAV-Protocol-orange)
 - ![CSS3](https://img.shields.io/badge/CSS3-Styling-purple)
+- ![Security](https://img.shields.io/badge/Security-AES--GCM-green)
 
 ## 支持与反馈
 
