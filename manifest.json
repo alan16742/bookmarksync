@@ -7,8 +7,7 @@
   "homepage_url": "https://github.com/nexply/bookmarksync",
   "permissions": [
     "bookmarks",
-    "storage",
-    "alarms"
+    "storage"
   ],
   "host_permissions": [
     "*://*/*"
