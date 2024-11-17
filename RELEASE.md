@@ -43,6 +43,6 @@
 ## 🙏 反馈
 如果您在使用过程中遇到任何问题，欢迎：
 - 提交 [Issue](https://github.com/nexply/bookmarksync/issues)
-- 发送邮件至 support@example.com
+- 发送邮件至 nexply@gmail.com
 
 感谢您的使用和支持！ 
