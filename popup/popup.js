@@ -91,7 +91,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       button.classList.add('loading');
       button.disabled = true;
       
-      const bookmarks = await BookmarkManager.getAllBookmarks();
+      const bookmarksObj = await BookmarkManager.getAllBookmarks();
+      const bookmarks = BookmarkManager.convertBookmarksToHTML(bookmarksObj[0]?.children.find(item => item.index === 0)?.children);
       const client = await getWebDAVClient();
       await client.uploadBookmarks(bookmarks);
       await SecureStorage.clearBookmarksChangedFlag();
@@ -112,7 +113,25 @@ document.addEventListener('DOMContentLoaded', async () => {
       button.disabled = true;
       
       const client = await getWebDAVClient();
-      const bookmarks = await client.downloadBookmarks();
+      const bookmarksHTML = await client.downloadBookmarks();
+      const bookmarksNow = await BookmarkManager.getAllBookmarks();
+      const bookmarksParsed = BookmarkManager.parseBookmarksHTML(bookmarksHTML);
+      const updatedBookmarksNow = bookmarksNow.map((item) => {
+        if (item.children && item.children.length > 0) {
+          for (let i = 0; i < item.children.length; i++) {
+            const child = item.children[i];
+            if (child.index === 0) {
+              item.children[i] = {
+                ...child,
+                children: bookmarksParsed,
+              };
+              break;
+            }
+          }
+        }
+        return item;
+      });
+      const bookmarks = updatedBookmarksNow;
       await BookmarkManager.importBookmarks(bookmarks);
       await SecureStorage.clearBookmarksChangedFlag();
       showStatus(I18n.t('status.downloadSuccess'), true);

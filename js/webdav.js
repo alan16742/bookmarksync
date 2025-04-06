@@ -41,13 +41,12 @@ class WebDAVClient {
 
   async uploadBookmarks(bookmarkData) {
     try {
-      const response = await fetch(this.serverUrl + '/bookmarks.json', {
+      const response = await fetch(this.serverUrl + '/bookmarks.html', {
         method: 'PUT',
         headers: {
-          'Authorization': 'Basic ' + btoa(`${this.username}:${this.password}`),
-          'Content-Type': 'application/json'
+          'Authorization': 'Basic ' + btoa(`${this.username}:${this.password}`)
         },
-        body: JSON.stringify(bookmarkData)
+        body: bookmarkData
       });
       
       if (!response.ok) {
@@ -60,7 +59,7 @@ class WebDAVClient {
 
   async downloadBookmarks() {
     try {
-      const response = await fetch(this.serverUrl + '/bookmarks.json', {
+      const response = await fetch(this.serverUrl + '/bookmarks.html', {
         method: 'GET',
         headers: {
           'Authorization': 'Basic ' + btoa(this.username + ':' + this.password)
@@ -71,7 +70,7 @@ class WebDAVClient {
         throw new Error(I18n.t('errors.downloadFailed'));
       }
 
-      return await response.json();
+      return await response.text();
     } catch (error) {
       throw new Error(I18n.t('errors.downloadFailed') + ': ' + error.message);
     }
