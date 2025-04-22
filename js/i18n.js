@@ -1,6 +1,7 @@
 const messages = {
   zh: {
     title: 'WebDAV书签同步',
+    update: '更新书签',
     upload: '上传书签',
     download: '下载书签',
     clear: '清空本地书签',
@@ -24,9 +25,6 @@ const messages = {
       migrationNeeded: '需要进行数据迁移'
     },
     errors: {
-      serverRequired: '请输入服务器地址',
-      usernameRequired: '请输入用户名',
-      passwordRequired: '请输入密码',
       invalidServer: '无效的服务器地址',
       passwordLength: '密码长度至少需要8个字符',
       authFailed: '认证失败，请检查用户名和密码',
@@ -55,6 +53,7 @@ const messages = {
   },
   en: {
     title: 'Bookmark Sync',
+    update: 'Update Bookmarks',
     upload: 'Upload Bookmarks',
     download: 'Download Bookmarks',
     clear: 'Clear Local Bookmarks',
@@ -78,9 +77,6 @@ const messages = {
       migrationNeeded: 'Data migration needed'
     },
     errors: {
-      serverRequired: 'Please enter server address',
-      usernameRequired: 'Please enter username',
-      passwordRequired: 'Please enter password',
       invalidServer: 'Invalid server address',
       passwordLength: 'Password must be at least 8 characters',
       authFailed: 'Authentication failed, please check username and password',

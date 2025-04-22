@@ -10,20 +10,27 @@ class WebDAVError extends Error {
 }
 
 class WebDAVClient {
-  constructor(serverUrl, username, password) {
-    this.serverUrl = serverUrl;
-    this.username = username;
-    this.password = password;
+  constructor(credentials) {
+    this.serverUrl = credentials.serverUrl;
+    this.username = credentials.username;
+    this.password = credentials.password;
+  }
+
+  async davFetch(url, method, options = {}) {
+    return fetch(url, {
+      method: method,
+      ...options,
+      headers: {
+        'Authorization': 'Basic ' + btoa(this.username + ':' + this.password),
+        ...(options.headers || {}),
+      },
+    });
   }
 
   async testConnection() {
     try {
-      const response = await fetch(this.serverUrl, {
-        method: 'PROPFIND',
-        headers: {
-          'Authorization': 'Basic ' + btoa(this.username + ':' + this.password),
-          'Depth': '0'
-        }
+      const response = await this.davFetch(this.serverUrl, 'PROPFIND', {
+        headers: { 'Depth': '0' }
       });
 
       if (response.status === 401) {
@@ -39,15 +46,25 @@ class WebDAVClient {
     }
   }
 
+  async isDavBookmarksNewer(bookmarkObj) {
+    const response = await this.davFetch(`${this.serverUrl}/bookmarks.html`, 'HEAD');
+    const davlastModified = Math.round(new Date(response.headers.get('Last-Modified')).getTime()/1000);
+
+    // 遍历书签对象，检查每个书签的 ADD_DATE
+    let latestModifiedTime;
+    for (const bookmark of Object.values(bookmarkObj)) {
+      const addTime = new Date(bookmark.LastModified).getTime();
+      if (!latestModifiedTime || addTime > latestModifiedTime) {
+        latestModifiedTime = addTime;
+      }
+    }
+
+    return davlastModified > latestModifiedTime;
+  }
+
   async uploadBookmarks(bookmarkData) {
     try {
-      const response = await fetch(this.serverUrl + '/bookmarks.html', {
-        method: 'PUT',
-        headers: {
-          'Authorization': 'Basic ' + btoa(`${this.username}:${this.password}`)
-        },
-        body: bookmarkData
-      });
+      const response = await this.davFetch(`${this.serverUrl}/bookmarks.html`, 'PUT', { body: bookmarkData} );
       
       if (!response.ok) {
         throw new Error(I18n.t('errors.uploadFailed'));
@@ -59,12 +76,7 @@ class WebDAVClient {
 
   async downloadBookmarks() {
     try {
-      const response = await fetch(this.serverUrl + '/bookmarks.html', {
-        method: 'GET',
-        headers: {
-          'Authorization': 'Basic ' + btoa(this.username + ':' + this.password)
-        }
-      });
+      const response = await this.davFetch(`${this.serverUrl}/bookmarks.html`, 'GET');
       
       if (!response.ok) {
         throw new Error(I18n.t('errors.downloadFailed'));

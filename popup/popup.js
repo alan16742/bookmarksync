@@ -16,134 +16,120 @@ function updateTranslations() {
   });
 }
 
+function showStatus(message, success) {
+  const status = document.getElementById('status');
+  status.textContent = message;
+  status.className = 'status ' + (success ? 'success' : 'error');
+}
+
+function toggleButtonLoading(button, isLoading) {
+  button.disabled = isLoading;
+  button.classList.toggle('loading', isLoading);
+}
+
+function getInputValues() {
+  return {
+    serverUrl: document.getElementById('serverUrl').value.trim(),
+    username: document.getElementById('username').value.trim(),
+    password: document.getElementById('password').value,
+  };
+}
+
+async function createWebDAVClient() {
+  const credentials = await SecureStorage.getCredentials();
+  return new WebDAVClient(credentials);
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
-  // 初始化 I18n
   await I18n.initialize();
-  
-  // 初始化语言选择器
   const languageSelect = document.getElementById('language');
   languageSelect.value = I18n.currentLocale;
   updateTranslations();
-  
-  // 监听语言切换
+
   languageSelect.addEventListener('change', async (e) => {
     await I18n.setLocale(e.target.value);
     updateTranslations();
   });
 
-  // 检查是否有未同步的变更
-  const hasChanges = await SecureStorage.hasBookmarksChanged();
-  if (hasChanges) {
+  if (await SecureStorage.hasBookmarksChanged()) {
     showStatus(I18n.t('status.changes'), false);
   }
-  
-  const credentials = await SecureStorage.getCredentials();
-  
-  // 填充已保存的设置
-  document.getElementById('serverUrl').value = credentials.serverUrl;
-  document.getElementById('username').value = credentials.username;
-  document.getElementById('password').value = credentials.password;
 
-  // 测试连接
+  const { serverUrl, username, password } = await SecureStorage.getCredentials();
+  Object.assign(document.getElementById('serverUrl'), { value: serverUrl });
+  Object.assign(document.getElementById('username'), { value: username });
+  Object.assign(document.getElementById('password'), { value: password });
+
   document.getElementById('testConnection').addEventListener('click', async () => {
     try {
-      const serverUrl = document.getElementById('serverUrl').value.trim();
-      const username = document.getElementById('username').value.trim();
-      const password = document.getElementById('password').value;
-
-      // 验证必填字段
-      if (!serverUrl) {
-        throw new Error(I18n.t('errors.serverRequired'));
+      const creds = getInputValues();
+      if (!creds.serverUrl || !creds.username || !creds.password) {
+        throw new Error(I18n.t('errors.allFieldsRequired'));
       }
-      if (!username) {
-        throw new Error(I18n.t('errors.usernameRequired'));
-      }
-      if (!password) {
-        throw new Error(I18n.t('errors.passwordRequired'));
-      }
-
-      const client = new WebDAVClient(serverUrl, username, password);
+      const client = new WebDAVClient(creds);
       const status = await client.testConnection();
-      showStatus(status ? I18n.t('status.connectionSuccess') : I18n.t('status.connectionFailed'), status);
+      showStatus(
+        status ? I18n.t('status.connectionSuccess') : I18n.t('status.connectionFailed'),
+        status
+      );
     } catch (error) {
       showStatus(error.message, false);
     }
   });
 
-  // 保存设置
   document.getElementById('saveSettings').addEventListener('click', async () => {
     try {
-      await SecureStorage.saveCredentials(
-        document.getElementById('serverUrl').value,
-        document.getElementById('username').value,
-        document.getElementById('password').value
-      );
+      const { serverUrl, username, password } = getInputValues();
+      await SecureStorage.saveCredentials(serverUrl, username, password);
       showStatus(I18n.t('status.settingsSaved'), true);
     } catch (error) {
       showStatus(I18n.t('errors.saveFailed') + ': ' + error.message, false);
     }
   });
 
-  // 上传书签
-  document.getElementById('uploadBtn').addEventListener('click', async () => {
-    const button = document.getElementById('uploadBtn');
+  const handleSync = async (mode) => {
+    const button = document.getElementById(`${mode}Btn`);
+    toggleButtonLoading(button, true);
     try {
-      button.classList.add('loading');
-      button.disabled = true;
-      
-      const bookmarksObj = await BookmarkManager.getAllBookmarks();
-      const bookmarks = BookmarkManager.convertBookmarksToHTML(bookmarksObj[0]?.children.find(item => item.index === 0)?.children);
-      const client = await getWebDAVClient();
-      await client.uploadBookmarks(bookmarks);
-      await SecureStorage.clearBookmarksChangedFlag();
-      showStatus(I18n.t('status.uploadSuccess'), true);
-    } catch (error) {
-      showStatus(error.message, false);
-    } finally {
-      button.classList.remove('loading');
-      button.disabled = false;
-    }
-  });
-
-  // 下载书签
-  document.getElementById('downloadBtn').addEventListener('click', async () => {
-    const button = document.getElementById('downloadBtn');
-    try {
-      button.classList.add('loading');
-      button.disabled = true;
-      
-      const client = await getWebDAVClient();
-      const bookmarksHTML = await client.downloadBookmarks();
-      const bookmarksNow = await BookmarkManager.getAllBookmarks();
-      const bookmarksParsed = BookmarkManager.parseBookmarksHTML(bookmarksHTML);
-      const updatedBookmarksNow = bookmarksNow.map((item) => {
-        if (item.children && item.children.length > 0) {
-          for (let i = 0; i < item.children.length; i++) {
-            const child = item.children[i];
-            if (child.index === 0) {
-              item.children[i] = {
-                ...child,
-                children: bookmarksParsed,
-              };
-              break;
-            }
-          }
+      const client = await createWebDAVClient();
+      if (mode === 'update') {
+        const localBookmarks = await BookmarkManager.getAllBookmarks();
+        const davNewer = await client.isDavBookmarksNewer(localBookmarks);
+        if (davNewer) {
+          const html = await client.downloadBookmarks();
+          const obj = await BookmarkManager.convertHtmlToObj(html, true);
+          await BookmarkManager.importBookmarks(obj);
+          showStatus(I18n.t('status.downloadSuccess'), true);
+        } else {
+          const html = BookmarkManager.convertObjToHtml(localBookmarks, true);
+          await client.uploadBookmarks(html);
+          showStatus(I18n.t('status.uploadSuccess'), true);
         }
-        return item;
-      });
-      const bookmarks = updatedBookmarksNow;
-      await BookmarkManager.importBookmarks(bookmarks);
-      await SecureStorage.clearBookmarksChangedFlag();
-      showStatus(I18n.t('status.downloadSuccess'), true);
+      } else if (mode === 'upload') {
+        const obj = await BookmarkManager.getAllBookmarks();
+        const html = BookmarkManager.convertObjToHtml(obj, true);
+        await client.uploadBookmarks(html);
+        await SecureStorage.clearBookmarksChangedFlag();
+        showStatus(I18n.t('status.uploadSuccess'), true);
+      } else if (mode === 'download') {
+        const html = await client.downloadBookmarks();
+        const obj = await BookmarkManager.convertHtmlToObj(html, true);
+        await BookmarkManager.importBookmarks(obj);
+        await SecureStorage.clearBookmarksChangedFlag();
+        showStatus(I18n.t('status.downloadSuccess'), true);
+      }
     } catch (error) {
       showStatus(error.message, false);
     } finally {
-      button.classList.remove('loading');
-      button.disabled = false;
+      toggleButtonLoading(button, false);
     }
+  };
+
+  // 为每个同步模式添加事件监听器
+  ['update', 'upload', 'download'].forEach(mode => {
+    document.getElementById(`${mode}Btn`).addEventListener('click', () => handleSync(mode));
   });
 
-  // 清空书签
   document.getElementById('clearBtn').addEventListener('click', async () => {
     if (confirm(I18n.t('status.clearConfirm'))) {
       try {
@@ -155,28 +141,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  // 添加设置区域展开/收起功能
   const settingsHeader = document.querySelector('.settings-header');
   const settingsContent = document.querySelector('.settings-content');
   const arrow = document.querySelector('.arrow');
-  
+
   settingsHeader.addEventListener('click', () => {
     settingsContent.classList.toggle('hidden');
     arrow.classList.toggle('up');
   });
 });
-
-function showStatus(message, success) {
-  const status = document.getElementById('status');
-  status.textContent = message;
-  status.className = 'status ' + (success ? 'success' : 'error');
-}
-
-async function getWebDAVClient() {
-  const credentials = await SecureStorage.getCredentials();
-  return new WebDAVClient(
-    credentials.serverUrl,
-    credentials.username,
-    credentials.password
-  );
-} 

@@ -127,7 +127,12 @@ class BookmarkManager {
     }
   }
 
-  static convertBookmarksToHTML(bookmarks) {
+  static convertObjToHtml(bookmarks, onlySyncMain = false) {
+    if (onlySyncMain) {
+      // chrome 只同步书签栏
+      bookmarks = bookmarks[0]?.children.find(item => item.index === 0)?.children;
+    }
+
     const escapeHtml = str => str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   
     function formatDate(ms) {
@@ -154,9 +159,10 @@ class BookmarkManager {
     }
   
     const bookmarksHTML = [
-      `<!DOCTYPE NETSCAPE-Bookmark-file-1>\n` +
-      `<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">\n` +
-      `<TITLE>Bookmarks</TITLE>\n<H1>Bookmarks</H1>\n<DL><p>\n`
+      '<!DOCTYPE NETSCAPE-Bookmark-file-1>\n',
+      `<!-- This is an automatically generated file.\n     It will be read and overwritten.\n     DO NOT EDIT! -->\n`,
+      '<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">\n',
+      '<TITLE>Bookmarks</TITLE>\n<H1>Bookmarks</H1>\n<DL><p>\n'
     ];
     for (const item of bookmarks) {
       bookmarksHTML.push(processNode(item));
@@ -166,7 +172,7 @@ class BookmarkManager {
     return bookmarksHTML.join('');
   }
   
-  static parseBookmarksHTML(html) {
+  static async convertHtmlToObj(html, onlySyncMain = false) {
     // 只保留从第一个 <DL> 开始的内容
     const start = html.indexOf('<DL>');
     if (start === -1) return [];
@@ -235,9 +241,30 @@ class BookmarkManager {
       }
       return -1;
     }
-  
-    return parseDL(html);
-  }  
+
+    const remoteObj = parseDL(html);
+
+    if (onlySyncMain) {
+      const bookmarksNow = await this.getAllBookmarks();
+      return bookmarksNow.map((item) => {
+        if (item.children && item.children.length > 0) {
+          for (let i = 0; i < item.children.length; i++) {
+            const child = item.children[i];
+            if (child.index === 0) {
+              item.children[i] = {
+                ...child,
+                children: remoteObj,
+              };
+              break;
+            }
+          }
+        }
+        return item;
+      });
+    }
+
+    return remoteObj;
+  }
 }
 
 export default BookmarkManager; 
