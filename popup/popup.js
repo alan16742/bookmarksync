@@ -40,6 +40,47 @@ async function createWebDAVClient() {
   return new WebDAVClient(credentials);
 }
 
+async function handleUpload(client) {
+  const obj = await BookmarkManager.getAllBookmarks();
+  const html = BookmarkManager.convertObjToHtml(obj, true);
+  await client.uploadBookmarks(html);
+  await SecureStorage.clearBookmarksChangedFlag();
+  showStatus(I18n.t('status.uploadSuccess'), true);
+}
+
+async function handleDownload(client) {
+  const html = await client.downloadBookmarks();
+  const obj = await BookmarkManager.convertHtmlToObj(html, true);
+  await BookmarkManager.importBookmarks(obj);
+  await SecureStorage.clearBookmarksChangedFlag();
+  showStatus(I18n.t('status.downloadSuccess'), true);
+}
+
+const handleSync = async (mode) => {
+  const button = document.getElementById(`${mode}Btn`);
+  toggleButtonLoading(button, true);
+  try {
+    const client = await createWebDAVClient();
+    if (mode === 'update') {
+      const localBookmarks = await BookmarkManager.getAllBookmarks();
+      const davNewer = await client.isDavBookmarksNewer(localBookmarks);
+      if (davNewer) {
+        await handleDownload(client);
+      } else {
+        await handleUpload(client);
+      }
+    } else if (mode === 'upload') {
+      await handleUpload(client);
+    } else if (mode === 'download') {
+      await handleDownload(client);
+    }
+  } catch (error) {
+    showStatus(error.message, false);
+  } finally {
+    toggleButtonLoading(button, false);
+  }
+};
+
 document.addEventListener('DOMContentLoaded', async () => {
   await I18n.initialize();
   const languageSelect = document.getElementById('language');
@@ -86,44 +127,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       showStatus(I18n.t('errors.saveFailed') + ': ' + error.message, false);
     }
   });
-
-  const handleSync = async (mode) => {
-    const button = document.getElementById(`${mode}Btn`);
-    toggleButtonLoading(button, true);
-    try {
-      const client = await createWebDAVClient();
-      if (mode === 'update') {
-        const localBookmarks = await BookmarkManager.getAllBookmarks();
-        const davNewer = await client.isDavBookmarksNewer(localBookmarks);
-        if (davNewer) {
-          const html = await client.downloadBookmarks();
-          const obj = await BookmarkManager.convertHtmlToObj(html, true);
-          await BookmarkManager.importBookmarks(obj);
-          showStatus(I18n.t('status.downloadSuccess'), true);
-        } else {
-          const html = BookmarkManager.convertObjToHtml(localBookmarks, true);
-          await client.uploadBookmarks(html);
-          showStatus(I18n.t('status.uploadSuccess'), true);
-        }
-      } else if (mode === 'upload') {
-        const obj = await BookmarkManager.getAllBookmarks();
-        const html = BookmarkManager.convertObjToHtml(obj, true);
-        await client.uploadBookmarks(html);
-        await SecureStorage.clearBookmarksChangedFlag();
-        showStatus(I18n.t('status.uploadSuccess'), true);
-      } else if (mode === 'download') {
-        const html = await client.downloadBookmarks();
-        const obj = await BookmarkManager.convertHtmlToObj(html, true);
-        await BookmarkManager.importBookmarks(obj);
-        await SecureStorage.clearBookmarksChangedFlag();
-        showStatus(I18n.t('status.downloadSuccess'), true);
-      }
-    } catch (error) {
-      showStatus(error.message, false);
-    } finally {
-      toggleButtonLoading(button, false);
-    }
-  };
 
   // 为每个同步模式添加事件监听器
   ['update', 'upload', 'download'].forEach(mode => {

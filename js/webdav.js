@@ -51,13 +51,27 @@ class WebDAVClient {
     const davlastModified = Math.round(new Date(response.headers.get('Last-Modified')).getTime()/1000);
 
     // 遍历书签对象，检查每个书签的 ADD_DATE
-    let latestModifiedTime;
-    for (const bookmark of Object.values(bookmarkObj)) {
-      const addTime = new Date(bookmark.LastModified).getTime();
-      if (!latestModifiedTime || addTime > latestModifiedTime) {
-        latestModifiedTime = addTime;
+    function findLatestDate(bookmarks) {
+      let latest = 0;
+    
+      function traverse(nodes) {
+        for (const node of nodes) {
+          if (node.dateGroupModified && typeof node.dateGroupModified === 'number') {
+            if (node.dateGroupModified > latest) {
+              latest = node.dateGroupModified;
+            }
+          }
+    
+          if (node.children && Array.isArray(node.children)) {
+            traverse(node.children);
+          }
+        }
       }
+    
+      traverse(bookmarks);
+      return latest;
     }
+    const latestModifiedTime = Math.round(findLatestDate(bookmarkObj)/1000);
 
     return davlastModified > latestModifiedTime;
   }

@@ -14,22 +14,25 @@ chrome.runtime.onConnect.addListener((port) => {
   }
 });
 
-async function handleBookmarkChange(text, color) {
+async function handleBookmarkChange(text, color, bookmarkChanged = false) {
+  // 首先检查是否需要禁用监听
+  const data = await chrome.storage.local.get(['disableBookmarkListener']);
+  if (data.disableBookmarkListener) return;
+  
   if (isListenerDisabled) return;
-  
-  // 设置书签已更改状态
-  await chrome.storage.local.set({ bookmarksChanged: true });
-  
-  // 使用徽章（badge）来显示提醒
+
+  await chrome.storage.local.set({ bookmarksChanged: bookmarkChanged });
   chrome.action.setBadgeText({ text: text });
-  chrome.action.setBadgeBackgroundColor({ color: color }); // 红色背景
+  chrome.action.setBadgeBackgroundColor({ color: color });
 }
 
 // 监听书签变化
-chrome.bookmarks.onCreated.addListener(handleBookmarkChange('!', '#FF0000'));
-chrome.bookmarks.onRemoved.addListener(handleBookmarkChange('!', '#FF0000'));
-chrome.bookmarks.onChanged.addListener(handleBookmarkChange('!', '#FF0000'));
-chrome.bookmarks.onMoved.addListener(handleBookmarkChange('!', '#FF0000'));
+const bookmarkChangeListener = () => handleBookmarkChange('!', '#FF0000', true);
+
+chrome.bookmarks.onCreated.addListener(bookmarkChangeListener);
+chrome.bookmarks.onRemoved.addListener(bookmarkChangeListener);
+chrome.bookmarks.onChanged.addListener(bookmarkChangeListener);
+chrome.bookmarks.onMoved.addListener(bookmarkChangeListener);
 
 // 可以在这里添加后台任务，比如定时同步等功能
 const alarmName = 'updateAlarm';
@@ -48,22 +51,36 @@ chrome.alarms.onAlarm.addListener((alarm) => {
 async function updateBookmark() {
   try {
     const davCredentials = await SecureStorage.getCredentials();
+    // 获取本地书签变更状态
+    const data = await chrome.storage.local.get(['bookmarksChanged']);
+    const bookmarksChanged = data.bookmarksChanged || false;
+    
     const bookmarksObj = await BookmarkManager.getAllBookmarks();
     const client = new WebDAVClient(davCredentials);
     const davNewer = await client.isDavBookmarksNewer(bookmarksObj);
+    
     if (davNewer) {
       // 下载
+      const downloadData = await chrome.storage.local.get(['downloadTime']);
+      const downloadTime = downloadData.downloadTime || 0;
+      const davlastModified = (await client.davFetch(`${client.serverUrl}/bookmarks.html`, 'HEAD')).headers.get('Last-Modified');
+      if (new Date(davlastModified) - new Date(downloadTime) < 1000 * 20) return; // 20秒内判断云端文件是否更新
+
       const bookmarksHtml = await client.downloadBookmarks();
-      const bookmarksObj = await BookmarkManager.convertHtmlToObj(bookmarksHtml, true);
-      await BookmarkManager.importBookmarks(bookmarksObj);
+      const updatedBookmarksObj = await BookmarkManager.convertHtmlToObj(bookmarksHtml, true);
+      await BookmarkManager.importBookmarks(updatedBookmarksObj);
       await SecureStorage.clearBookmarksChangedFlag();
       await handleBookmarkChange('↓', '#00FF00');
-    } else {
-      // 上传
+      await chrome.storage.local.set({ downloadTime: davlastModified });
+    } else if (bookmarksChanged) {
+      // 仅当本地有变更时才上传
       const bookmarksHtml = BookmarkManager.convertObjToHtml(bookmarksObj, true);
       await client.uploadBookmarks(bookmarksHtml);
       await SecureStorage.clearBookmarksChangedFlag();
       await handleBookmarkChange('↑', '#00FF00');
+    } else {
+      // 两边都没有变更，清除徽章
+      await SecureStorage.clearBookmarksChangedFlag();
     }
   } catch (error) {
     await handleBookmarkChange('X', '#FF0000');
