@@ -17,7 +17,10 @@
       <button id="updateBtn" data-i18n="update">Update Bookmarks</button>
       <button id="uploadBtn" data-i18n="upload">Upload Bookmarks</button>
       <button id="downloadBtn" data-i18n="download">Download Bookmarks</button>
-      <button id="clearBtn" data-i18n="clear">Clear Local Bookmarks</button>
+      <label for="onlySyncMain" class="checkbox-label">
+        <input type="checkbox" id="onlySyncMain" name="onlySyncMain">
+        <span class="checkbox-text" data-i18n="settings.onlySyncMain">onlySyncMain</span>
+      </label>
     </div>
     <div class="settings-header">
       <span class="arrow">▼</span>
@@ -33,6 +36,7 @@
       <div class="form-group">
         <input type="password" id="password" data-i18n-placeholder="settings.passwordPlaceholder">
       </div>
+      
       <div class="actions">
         <button id="testConnection" data-i18n="settings.test">Test Connection</button>
         <button id="saveSettings" data-i18n="settings.save">Save Settings</button>
@@ -43,4 +47,4 @@
   </div>
   <script src="popup.js" type="module"></script>
 </body>
-</html> 
+</html>

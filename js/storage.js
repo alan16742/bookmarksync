@@ -185,6 +185,16 @@ class SecureStorage {
   static async generateKeyMaterial() {
     return crypto.getRandomValues(new Uint8Array(32));
   }
+
+  static async getSyncOptions() {
+    const data = await chrome.storage.local.get(['syncOptions']);
+    return data.syncOptions || { onlySyncMain: true };
+  }
+
+  static async saveSyncOptions(options) {
+    await chrome.storage.local.set({ syncOptions: options });
+    return true;
+  }
 }
 
 export default SecureStorage; 

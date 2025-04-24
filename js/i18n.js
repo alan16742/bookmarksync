@@ -4,12 +4,12 @@ const messages = {
     update: '更新书签',
     upload: '上传书签',
     download: '下载书签',
-    clear: '清空本地书签',
     settings: {
       title: 'WebDAV 设置',
       serverPlaceholder: '例如: https://dav.example.com',
       usernamePlaceholder: '请输入WebDAV用户名',
       passwordPlaceholder: '请输入WebDAV密码',
+      onlySyncMain: '只同步书签栏',
       test: '测试连接',
       save: '保存设置'
     },
@@ -20,8 +20,6 @@ const messages = {
       settingsSaved: '设置已保存',
       uploadSuccess: '书签上传成功',
       downloadSuccess: '书签下载成功',
-      clearSuccess: '书签已清空',
-      clearConfirm: '确定要清空所有本地书签吗？',
       migrationNeeded: '需要进行数据迁移'
     },
     errors: {
@@ -31,7 +29,6 @@ const messages = {
       networkError: '网络连接失败，请检查服务器地址',
       uploadFailed: '上传失败',
       downloadFailed: '下载失败',
-      clearFailed: '清空书签失败',
       saveFailed: '保存设置失败',
       createBookmarkFailed: '创建书签失败',
       importFailed: '导入书签失败',
@@ -56,12 +53,12 @@ const messages = {
     update: 'Update Bookmarks',
     upload: 'Upload Bookmarks',
     download: 'Download Bookmarks',
-    clear: 'Clear Local Bookmarks',
     settings: {
       title: 'WebDAV Settings',
       serverPlaceholder: 'e.g. https://dav.example.com',
       usernamePlaceholder: 'Enter WebDAV username',
       passwordPlaceholder: 'Enter WebDAV password',
+      onlySyncMain: 'Only sync bookmarks bar',
       test: 'Test Connection',
       save: 'Save Settings'
     },
@@ -72,8 +69,6 @@ const messages = {
       settingsSaved: 'Settings saved',
       uploadSuccess: 'Bookmarks uploaded successfully',
       downloadSuccess: 'Bookmarks downloaded successfully',
-      clearSuccess: 'Bookmarks cleared',
-      clearConfirm: 'Are you sure you want to clear all local bookmarks?',
       migrationNeeded: 'Data migration needed'
     },
     errors: {
@@ -83,7 +78,6 @@ const messages = {
       networkError: 'Network connection failed, please check server address',
       uploadFailed: 'Upload failed',
       downloadFailed: 'Download failed',
-      clearFailed: 'Failed to clear bookmarks',
       saveFailed: 'Failed to save settings',
       createBookmarkFailed: 'Failed to create bookmark',
       importFailed: 'Failed to import bookmarks',

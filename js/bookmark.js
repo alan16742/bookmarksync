@@ -7,10 +7,6 @@ class BookmarkManager {
     return BookmarkService.getAllBookmarks();
   }
 
-  static async clearAllBookmarks() {
-    return BookmarkService.clearAllBookmarks();
-  }
-
   static async importBookmarks(bookmarkData) {
     return BookmarkService.importBookmarks(bookmarkData);
   }

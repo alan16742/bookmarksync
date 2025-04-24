@@ -3,8 +3,32 @@ import BookmarkService from './BookmarkService.js';
 class BookmarkConverter {
   static convertObjToHtml(bookmarks, onlySyncMain = false) {
     if (onlySyncMain) {
-      // chrome 只同步书签栏
-      bookmarks = bookmarks[0]?.children.find(item => item.index === 0)?.children;
+      // 常见名称：Chrome的"书签栏"/"Bookmarks Bar"，Firefox的"书签工具栏"/"Bookmarks Toolbar"
+      const commonBarNames = ["bookmarks bar", "bookmarks toolbar"];
+      let bookmarkBarFolder = null;
+      
+      // 搜索根级别
+      for (const root of bookmarks) {
+        if (root.children) {
+          // 在一级文件夹中查找书签栏
+          bookmarkBarFolder = root.children.find(folder => 
+            folder.title && commonBarNames.some(name => 
+              folder.title.toLowerCase() === name || 
+              folder.title.toLowerCase().includes(name)
+            )
+          );
+          
+          if (bookmarkBarFolder) {
+            bookmarks = bookmarkBarFolder.children;
+            break;
+          }
+        }
+      }
+      
+      // 如果找不到匹配的名称，回退到第一个根节点的第一个子文件夹（通常是Chrome的默认位置）
+      if (!bookmarkBarFolder && bookmarks[0]?.children && bookmarks[0].children.length > 0) {
+        bookmarks = bookmarks[0].children[0]?.children || [];
+      }
     }
 
     const escapeHtml = str => str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');

@@ -42,7 +42,8 @@ async function createWebDAVClient() {
 
 async function handleUpload(client) {
   const obj = await BookmarkManager.getAllBookmarks();
-  const html = BookmarkManager.convertObjToHtml(obj, true);
+  const syncOptions = await SecureStorage.getSyncOptions();
+  const html = BookmarkManager.convertObjToHtml(obj, syncOptions.onlySyncMain);
   await client.uploadBookmarks(html);
   await SecureStorage.clearBookmarksChangedFlag();
   showStatus(I18n.t('status.uploadSuccess'), true);
@@ -50,7 +51,8 @@ async function handleUpload(client) {
 
 async function handleDownload(client) {
   const html = await client.downloadBookmarks();
-  const obj = await BookmarkManager.convertHtmlToObj(html, true);
+  const syncOptions = await SecureStorage.getSyncOptions();
+  const obj = await BookmarkManager.convertHtmlToObj(html, syncOptions.onlySyncMain);
   await BookmarkManager.importBookmarks(obj);
   await SecureStorage.clearBookmarksChangedFlag();
   showStatus(I18n.t('status.downloadSuccess'), true);
@@ -100,6 +102,17 @@ document.addEventListener('DOMContentLoaded', async () => {
   Object.assign(document.getElementById('serverUrl'), { value: serverUrl });
   Object.assign(document.getElementById('username'), { value: username });
   Object.assign(document.getElementById('password'), { value: password });
+  
+  // 加载同步设置
+  const syncOptions = await SecureStorage.getSyncOptions();
+  document.getElementById('onlySyncMain').checked = syncOptions.onlySyncMain;
+  
+  // 保存同步设置的事件监听器
+  document.getElementById('onlySyncMain').addEventListener('change', async (e) => {
+    await SecureStorage.saveSyncOptions({
+      onlySyncMain: e.target.checked
+    });
+  });
 
   document.getElementById('testConnection').addEventListener('click', async () => {
     try {
@@ -122,6 +135,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
       const { serverUrl, username, password } = getInputValues();
       await SecureStorage.saveCredentials(serverUrl, username, password);
+      
+      // 同时保存同步选项
+      await SecureStorage.saveSyncOptions({
+        onlySyncMain: document.getElementById('onlySyncMain').checked
+      });
+      
       showStatus(I18n.t('status.settingsSaved'), true);
     } catch (error) {
       showStatus(I18n.t('errors.saveFailed') + ': ' + error.message, false);
@@ -131,17 +150,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   // 为每个同步模式添加事件监听器
   ['update', 'upload', 'download'].forEach(mode => {
     document.getElementById(`${mode}Btn`).addEventListener('click', () => handleSync(mode));
-  });
-
-  document.getElementById('clearBtn').addEventListener('click', async () => {
-    if (confirm(I18n.t('status.clearConfirm'))) {
-      try {
-        await BookmarkManager.clearAllBookmarks();
-        showStatus(I18n.t('status.clearSuccess'), true);
-      } catch (error) {
-        showStatus(I18n.t('errors.clearFailed') + ': ' + error.message, false);
-      }
-    }
   });
 
   const settingsHeader = document.querySelector('.settings-header');
