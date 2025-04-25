@@ -136,11 +136,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       const { serverUrl, username, password } = getInputValues();
       await SecureStorage.saveCredentials(serverUrl, username, password);
       
-      // 同时保存同步选项
-      await SecureStorage.saveSyncOptions({
-        onlySyncMain: document.getElementById('onlySyncMain').checked
-      });
-      
       showStatus(I18n.t('status.settingsSaved'), true);
     } catch (error) {
       showStatus(I18n.t('errors.saveFailed') + ': ' + error.message, false);

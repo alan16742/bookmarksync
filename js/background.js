@@ -54,7 +54,8 @@ async function updateBookmark() {
     // 获取本地书签变更状态
     const data = await chrome.storage.local.get(['bookmarksChanged']);
     const bookmarksChanged = data.bookmarksChanged || false;
-    
+    const syncOptions = await SecureStorage.getSyncOptions();
+
     const bookmarksObj = await BookmarkManager.getAllBookmarks();
     const client = new WebDAVClient(davCredentials);
     const davNewer = await client.isDavBookmarksNewer(bookmarksObj);
@@ -67,14 +68,14 @@ async function updateBookmark() {
       if (new Date(davlastModified) - new Date(downloadTime) < 1000 * 20) return; // 20秒内判断云端文件是否更新
 
       const bookmarksHtml = await client.downloadBookmarks();
-      const updatedBookmarksObj = await BookmarkManager.convertHtmlToObj(bookmarksHtml, true);
+      const updatedBookmarksObj = await BookmarkManager.convertHtmlToObj(bookmarksHtml, syncOptions.onlySyncMain);
       await BookmarkManager.importBookmarks(updatedBookmarksObj);
       await SecureStorage.clearBookmarksChangedFlag();
       await handleBookmarkChange('↓', '#00FF00');
       await chrome.storage.local.set({ downloadTime: davlastModified });
     } else if (bookmarksChanged) {
       // 仅当本地有变更时才上传
-      const bookmarksHtml = BookmarkManager.convertObjToHtml(bookmarksObj, true);
+      const bookmarksHtml = BookmarkManager.convertObjToHtml(bookmarksObj, syncOptions.onlySyncMain);
       await client.uploadBookmarks(bookmarksHtml);
       await SecureStorage.clearBookmarksChangedFlag();
       await handleBookmarkChange('↑', '#00FF00');

@@ -31,8 +31,6 @@ class BookmarkConverter {
       }
     }
 
-    const escapeHtml = str => str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  
     function formatDate(ms) {
       return Math.floor(ms / 1000);
     }
@@ -42,7 +40,7 @@ class BookmarkConverter {
   
       if (node.children && node.children.length > 0) {
         const addDate = node.dateAdded ? formatDate(node.dateAdded) : '';
-        html += `${indent}<DT><H3 ADD_DATE="${addDate}">${escapeHtml(node.title)}</H3>\n`;
+        html += `${indent}<DT><H3 ADD_DATE="${addDate}">${node.title}</H3>\n`;
         html += `${indent}<DL><p>\n`;
         for (const child of node.children) {
           html += processNode(child, indent + '  ');
@@ -50,7 +48,7 @@ class BookmarkConverter {
         html += `${indent}</DL><p>\n`;
       } else if (node.url) {
         const addDate = node.dateAdded ? formatDate(node.dateAdded) : '';
-        html += `${indent}<DT><A HREF="${node.url}" ADD_DATE="${addDate}">${escapeHtml(node.title || node.url)}</A>\n`;
+        html += `${indent}<DT><A HREF="${node.url}" ADD_DATE="${addDate}">${node.title || node.url}</A>\n`;
       }
   
       return html;
@@ -83,6 +81,13 @@ class BookmarkConverter {
     function parseDL(str) {
       const items = [];
       let i = 0;
+
+      // 解码 HTML 实体
+      function decodeHtmlEntities(encodedStr) {
+        const textarea = document.createElement('textarea');
+        textarea.innerHTML = encodedStr;
+        return textarea.value;
+      }
   
       while (i < str.length) {
         if (str.startsWith('<DT><H3', i)) {
@@ -92,7 +97,7 @@ class BookmarkConverter {
           const h3Tag = str.slice(h3Start, h3End + 5);
           const titleMatch = h3Tag.match(/<H3[^>]*>(.*?)<\/H3>/i);
           const addDateMatch = h3Tag.match(/ADD_DATE="(\d+)"/i);
-          const title = titleMatch?.[1] || '';
+          const title = decodeHtmlEntities(titleMatch?.[1] || ''); // 解码标题
           const addDate = addDateMatch?.[1] || '';
   
           const dlStart = str.indexOf('<DL><p>', h3End);
@@ -113,8 +118,8 @@ class BookmarkConverter {
           const titleMatch = aTag.match(/<A[^>]*>(.*?)<\/A>/i);
   
           items.push({
-            title: titleMatch?.[1] || '',
-            url: urlMatch?.[1] || '',
+            title: decodeHtmlEntities(titleMatch?.[1] || ''), // 解码标题
+            url: decodeHtmlEntities(urlMatch?.[1] || ''), // 解码 URL
             addDate: addDateMatch?.[1] || ''
           });
   
