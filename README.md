@@ -32,6 +32,7 @@
 ## 安装方法
 
 ### 开发版本安装
+
 1. 下载本项目代码
 2. 运行 `npm install` 安装依赖
 3. 生成开发密钥：`npm run generate-key`
@@ -42,6 +43,7 @@
 8. 选择项目文件夹中的 `dist` 目录
 
 ### 发布版本安装
+
 1. 从 [Release](https://github.com/nexply/bookmarksync/releases) 页面下载最新的 `.zip` 文件
 2. 将文件拖放到 Chrome 扩展程序页面进行安装
 
@@ -74,27 +76,30 @@
 
 1. 安装依赖：
 
-  `npm install`
+`npm install`
 
 2. 生成开发密钥：
-   
-  `npm run generate-key`
+
+`npm run generate-key`
 
 3. 构建扩展：
 
-  `npm run build`
+`npm run build`
 
 4. 调试模式构建：
 
-  `npm run build:debug`
+`npm run build:debug`
 
 ### 构建输出
+
 构建后会在 `dist` 目录生成：
+
 - `bookmark-sync-v{version}.zip` - 用于分发的压缩包
 
 ## 贡献指南
 
 欢迎提交 Issue 和 Pull Request。在提交代码前，请确保：
+
 - 代码符合项目现有的代码风格
 - 添加必要的测试和文档
 - 更新 README 中的相关信息

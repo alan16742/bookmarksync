@@ -1,45 +1,64 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
-  <meta charset="UTF-8">
-  <link rel="stylesheet" href="popup.css">
-</head>
-<body>
-  <div class="container">
-    <div class="header">
-      <h1 class="title" data-i18n="title">WebDAV Bookmark Sync</h1>
-      <select id="language">
-        <option value="en">English</option>
-        <option value="zh">中文</option>
-      </select>
-    </div>
-    <div class="actions">
-      <button id="uploadBtn" data-i18n="upload">Upload Bookmarks</button>
-      <button id="downloadBtn" data-i18n="download">Download Bookmarks</button>
-      <button id="clearBtn" data-i18n="clear">Clear Local Bookmarks</button>
-    </div>
-    <div class="settings-header">
-      <span class="arrow">▼</span>
-    </div>
-    <div class="settings-content hidden">
-      <h3 data-i18n="settings.title">WebDAV Settings</h3>
-      <div class="form-group">
-        <input type="text" id="serverUrl" data-i18n-placeholder="settings.serverPlaceholder">
-      </div>
-      <div class="form-group">
-        <input type="text" id="username" data-i18n-placeholder="settings.usernamePlaceholder">
-      </div>
-      <div class="form-group">
-        <input type="password" id="password" data-i18n-placeholder="settings.passwordPlaceholder">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1 class="title" data-i18n="title">WebDAV Bookmark Sync</h1>
+        <select id="language">
+          <option value="en">English</option>
+          <option value="zh">中文</option>
+        </select>
       </div>
       <div class="actions">
-        <button id="testConnection" data-i18n="settings.test">Test Connection</button>
-        <button id="saveSettings" data-i18n="settings.save">Save Settings</button>
+        <button id="updateBtn" data-i18n="update">Update Bookmarks</button>
+        <button id="uploadBtn" data-i18n="upload">Upload Bookmarks</button>
+        <button id="downloadBtn" data-i18n="download">
+          Download Bookmarks
+        </button>
       </div>
+      <div class="settings-header">
+        <span class="arrow">▼</span>
+      </div>
+      <div class="settings-content hidden">
+        <h3 data-i18n="settings.title">WebDAV Settings</h3>
+        <div class="form-group">
+          <input
+            type="text"
+            id="serverUrl"
+            data-i18n-placeholder="settings.serverPlaceholder"
+          />
+        </div>
+        <div class="form-group">
+          <input
+            type="text"
+            id="username"
+            data-i18n-placeholder="settings.usernamePlaceholder"
+          />
+        </div>
+        <div class="form-group">
+          <input
+            type="password"
+            id="password"
+            data-i18n-placeholder="settings.passwordPlaceholder"
+          />
+        </div>
+
+        <div class="actions">
+          <button id="testConnection" data-i18n="settings.test">
+            Test Connection
+          </button>
+          <button id="saveSettings" data-i18n="settings.save">
+            Save Settings
+          </button>
+        </div>
+      </div>
+
+      <div id="status" class="status"></div>
     </div>
-    
-    <div id="status" class="status"></div>
-  </div>
-  <script src="popup.js" type="module"></script>
-</body>
-</html> 
+    <script src="popup.js" type="module"></script>
+  </body>
+</html>

@@ -1,131 +1,69 @@
-import I18n from './i18n.js';
+import BookmarkService from "./services/BookmarkService.js";
+import BookmarkConverter from "./services/BookmarkConverter.js";
+import BookmarkGetDel from "./services/BookmarkGetDel.js";
 
 class BookmarkManager {
   static async getAllBookmarks() {
-    return new Promise((resolve) => {
-      chrome.bookmarks.getTree(resolve);
-    });
-  }
-
-  static async clearAllBookmarks() {
-    const bookmarks = await this.getAllBookmarks();
-    const rootNodes = bookmarks[0].children;
-    
-    for (const node of rootNodes) {
-      for (const child of node.children || []) {
-        await chrome.bookmarks.removeTree(child.id);
-      }
-    }
+    return BookmarkGetDel.getAllBookmarks();
   }
 
   static async importBookmarks(bookmarkData) {
-    const BROWSER_TYPE = {
-      FIREFOX: 'firefox',
-      CHROME: 'chrome'
-    };
+    return BookmarkService.importBookmarks(bookmarkData);
+  }
 
-    const ROOT_FOLDERS = {
-      FIREFOX: {
-        MENU: 'menu________',
-        MOBILE: 'mobile______',
-        TOOLBAR: 'toolbar_____',
-        UNFILED: 'unfiled_____'
-      },
-      CHROME: {
-        TOOLBAR: '1',
-        OTHER: '2',
-        MOBILE: '3'
-      }
-    };
+  static async createBookmarkTree(node, parentId) {
+    return BookmarkService.createBookmarkTree(node, parentId);
+  }
 
-    // 检测当前浏览器类型
-    const getCurrentBrowser = () => {
-      return typeof browser !== 'undefined' ? BROWSER_TYPE.FIREFOX : BROWSER_TYPE.CHROME;
-    };
+  static convertObjToHtml(bookmarks) {
+    return BookmarkConverter.convertObjToHtml(bookmarks);
+  }
 
-    // 获取根文件夹ID
-    const getRootFolderId = (folderTitle, browserType) => {
-      if (browserType === BROWSER_TYPE.FIREFOX) {
-        switch (folderTitle) {
-          case I18n.t('bookmarks.menu'):
-          case I18n.t('bookmarks.menuZh'): return ROOT_FOLDERS.FIREFOX.MENU;
-          case I18n.t('bookmarks.mobile'):
-          case I18n.t('bookmarks.mobileZh'): return ROOT_FOLDERS.FIREFOX.MOBILE;
-          case I18n.t('bookmarks.toolbar'):
-          case I18n.t('bookmarks.toolbarZh'): return ROOT_FOLDERS.FIREFOX.TOOLBAR;
-          default: return ROOT_FOLDERS.FIREFOX.UNFILED;
-        }
-      } else {
-        switch (folderTitle) {
-          case I18n.t('bookmarks.bar'):
-          case I18n.t('bookmarks.barZh'): return ROOT_FOLDERS.CHROME.TOOLBAR;
-          case I18n.t('bookmarks.mobile'):
-          case I18n.t('bookmarks.mobileZh'): return ROOT_FOLDERS.CHROME.MOBILE;
-          default: return ROOT_FOLDERS.CHROME.OTHER;
-        }
-      }
-    };
+  static async convertHtmlToObj(html) {
+    return BookmarkConverter.convertHtmlToObj(html);
+  }
 
-    async function createBookmarkTree(node, parentId, browserType) {
-      try {
-        if (node.url) {
-          // 处理特殊URL格式
-          let url = node.url;
-          if (browserType === BROWSER_TYPE.FIREFOX && url.startsWith('chrome://')) {
-            url = url.replace('chrome://', 'about:');
+  static async extractSyncableBookmarks(bookmarks) {
+    // 使用与导入相似的寻找本地收藏夹id优先级
+    const rootFolderId = await BookmarkGetDel.findAvailableRootFolder();
+
+    // 如果没有找到根文件夹，返回空数组
+    if (!rootFolderId) {
+      return [];
+    }
+
+    // 过滤掉 title 为 "placeholder" 的书签的辅助函数
+    const filterPlaceholderBookmarks = (children) => {
+      return children
+        .filter((child) => child.title !== "placeholder") // 过滤当前层的 placeholder
+        .map((child) => {
+          // 如果是文件夹（有 children），递归处理其子项
+          if (child.children && child.children.length > 0) {
+            return {
+              ...child,
+              children: filterPlaceholderBookmarks(child.children),
+            };
           }
+          return child;
+        });
+    };
 
-          const bookmarkAPI = browserType === BROWSER_TYPE.FIREFOX ? browser.bookmarks : chrome.bookmarks;
-          await bookmarkAPI.create({
-            parentId: parentId,
-            title: node.title,
-            url: url
-          });
-        } else {
-          const bookmarkAPI = browserType === BROWSER_TYPE.FIREFOX ? browser.bookmarks : chrome.bookmarks;
-          const folder = await bookmarkAPI.create({
-            parentId: parentId,
-            title: node.title
-          });
-          
-          if (node.children) {
-            for (const child of node.children) {
-              await createBookmarkTree(child, folder.id, browserType);
-            }
-          }
-        }
-      } catch (error) {
-        console.error(I18n.t('errors.createBookmarkFailed'), error, node);
+    // 先尝试查找指定的根文件夹
+    for (const item of bookmarks) {
+      if (item.id === rootFolderId && item.children) {
+        return filterPlaceholderBookmarks(item.children);
       }
     }
 
-    try {
-      const browserType = getCurrentBrowser();
-      const bookmarkAPI = browserType === BROWSER_TYPE.FIREFOX ? browser.bookmarks : chrome.bookmarks;
-      
-      // 在导入开始前临时禁用书签变更监听
-      const port = chrome.runtime.connect({ name: 'disable-bookmark-listener' });
-      
-      // 清空现有书签
-      await this.clearAllBookmarks();
-      
-      // 导入书签
-      for (const node of bookmarkData[0].children) {
-        const rootId = getRootFolderId(node.title, browserType);
-        if (node.children) {
-          for (const child of node.children) {
-            await createBookmarkTree(child, rootId, browserType);
-          }
-        }
+    // 如果没有找到指定的根文件夹，返回第一个有子节点的根文件夹的子节点
+    for (const item of bookmarks) {
+      if (item.children) {
+        return filterPlaceholderBookmarks(item.children);
       }
-      
-      // 重新启用书签变更监听
-      port.disconnect();
-    } catch (error) {
-      console.error(I18n.t('errors.importFailed'), error);
-      throw new Error(I18n.t('errors.importFailed') + ': ' + error.message);
     }
+
+    return [];
   }
 }
 
-export default BookmarkManager; 
+export default BookmarkManager;

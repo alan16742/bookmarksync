@@ -3,15 +3,10 @@
   "name": "__MSG_extName__",
   "description": "__MSG_extDescription__",
   "short_name": "__MSG_extShortName__",
-  "version": "1.0.3",
+  "version": "1.0.6",
   "homepage_url": "https://github.com/nexply/bookmarksync",
-  "permissions": [
-    "bookmarks",
-    "storage"
-  ],
-  "host_permissions": [
-    "*://*/*"
-  ],
+  "permissions": ["alarms", "bookmarks", "storage"],
+  "host_permissions": ["*://*/*"],
   "action": {
     "default_popup": "popup/popup.html",
     "default_icon": {
@@ -21,7 +16,7 @@
     }
   },
   "background": {
-    "service_worker": "js/background.js",
+    "service_worker": "background.js",
     "type": "module"
   },
   "icons": {
