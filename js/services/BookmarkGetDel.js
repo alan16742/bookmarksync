@@ -13,9 +13,6 @@ class BookmarkGetDel {
 
     for (const node of rootNodes) {
       for (const child of node.children || []) {
-        if (child.title === "placeholder") {
-          continue;
-        }
         await chrome.bookmarks.removeTree(child.id);
       }
     }
@@ -55,6 +52,32 @@ class BookmarkGetDel {
 
     // 如果仍然没有找到，返回 null
     return null;
+  }
+
+  static async extractSyncableBookmarks(bookmarks) {
+    // 使用与导入相似的寻找本地收藏夹id优先级
+    const rootFolderId = await BookmarkGetDel.findAvailableRootFolder();
+
+    // 如果没有找到根文件夹，返回空数组
+    if (!rootFolderId) {
+      return [];
+    }
+
+    // 先尝试查找指定的根文件夹
+    for (const item of bookmarks) {
+      if (item.id === rootFolderId && item.children) {
+        return item.children;
+      }
+    }
+
+    // 如果没有找到指定的根文件夹，返回第一个有子节点的根文件夹的子节点
+    for (const item of bookmarks) {
+      if (item.children) {
+        return item.children;
+      }
+    }
+
+    return [];
   }
 }
 
